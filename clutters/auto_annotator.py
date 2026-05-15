@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-
 from ultralytics import YOLO
 from ultralytics.models.sam import Predictor as SAMPredictor
 
@@ -25,7 +24,8 @@ overrides = dict(
     task="segment",
     mode="predict",
     imgsz=1024,
-    model="/home/yy/workspace/detection/Yolo/sam_b.pt",
+    model=r"D:\code\detection\Yolo\models\sam_b.pt",
+    save=False,
 )
 predictor = SAMPredictor(overrides=overrides)
 

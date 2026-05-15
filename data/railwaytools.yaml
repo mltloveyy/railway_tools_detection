@@ -1,0 +1,75 @@
+钳:
+  xiezuiqian: {id: 0, name: 斜嘴钳}
+  jianzuiqian: {id: 1, name: 尖嘴钳}
+  laohuqian: {id: 2, name: 老虎钳}
+  boxianqian: {id: 3, name: 剥线钳}
+  yingzuiqian: {id: 4, name: 鹰嘴钳}
+  wanzuiqian: {id: 5, name: 弯嘴钳}
+
+扳手:
+  neiliujiaobanshou: {id: 6, name: 内六角扳手}
+  neiliujiaobanshou_tao: {id: 7, name: 内六角扳手(套)}
+  huodongbanshou: {id: 8, name: 活动扳手}
+  gudingbanshou: {id: 9, name: 固定扳手}
+  liangyongbanshou: {id: 10, name: 两用扳手}
+  meihuabanshou: {id: 11, name: 梅花扳手}
+  jilunbanshou: {id: 12, name: 棘轮扳手}
+  kaixiangbanshou: {id: 13, name: 开箱扳手}
+  banshoulianjiegan: {id: 14, name: 扳手连接杆}
+
+套筒:
+  txingtaotong: {id: 15, name: T型套筒}
+  sanjiaotaotong: {id: 16, name: 三角套筒}
+  zhijiaotaotong: {id: 17, name: 直角套筒}
+  shuangjieguntaotong: {id: 18, name: 双截棍套筒}
+  taotongzhuanjietou: {id: 19, name: 套筒转接头}
+  yanzuitaotong: {id: 20, name: 烟嘴套筒}
+  shizitaotong: {id: 21, name: 十字套筒}
+
+螺丝刀:
+  luosidao: {id: 22, name: 螺丝刀}
+  taotongluosidao: {id: 23, name: 套筒螺丝刀}
+  zhijiaotaotongluosidao: {id: 24, name: 直角套筒螺丝刀}
+
+刀具:
+  cuodao: {id: 25, name: 锉刀}
+  meigongdao: {id: 26, name: 美工刀}
+  zhediedao: {id: 27, name: 折叠刀}
+  jiandao: {id: 28, name: 剪刀}
+
+测量工具:
+  juanchi: {id: 29, name: 卷尺}
+  shuipingchi: {id: 30, name: 水平尺}
+  gangchi: {id: 31, name: 钢尺}
+  saichi: {id: 32, name: 塞尺}
+
+刷:
+  gangshua: {id: 33, name: 钢刷}
+  maoshua: {id: 34, name: 毛刷}
+
+其他工具:
+  juzi: {id: 35, name: 锯子}
+  niezi: {id: 36, name: 镊子}
+  yaoshi: {id: 37, name: 钥匙}
+  tiechan: {id: 38, name: 铁铲}
+  gongjubao: {id: 39, name: 工具包}
+  shoudiantong: {id: 40, name: 手电筒}
+  jiaodai: {id: 41, name: 胶带}
+  chongzi: {id: 42, name: 冲子}
+  xinhaojiyaoshi: {id: 43, name: 信号机钥匙}
+
+安全防护:
+  xiangjiaoshoutao: {id: 44, name: 橡胶手套}
+  jiaoxie: {id: 45, name: 胶鞋}
+
+锤类:
+  muchui: {id: 46, name: 木槌}
+  tiechui: {id: 47, name: 铁锤}
+
+电工工具:
+  wanyongbiao: {id: 48, name: 万用表}
+  dianzuan: {id: 49, name: 电钻}
+  zhaooubiao: {id: 50, name: 兆欧表}
+
+通信设备:
+  duijiangji: {id: 51, name: 对讲机}

@@ -3,6 +3,7 @@ import os
 import shutil
 
 import cv2
+import yaml
 
 
 def labelme2yolo(points, imgsz):
@@ -35,8 +36,21 @@ def labelme2bbox(points):
     return (int(x_min), int(y_min), int(w), int(h))
 
 
-def get_classes(root_dir, classes, check=False):
-    if check:
+def get_classes(yaml_path):
+    with open(yaml_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    tool_list = []
+    for category in data.values():
+        for tool_key, tool_info in category.items():
+            tool_id = tool_info["id"]
+            tool_list.append((tool_id, tool_key))
+    tool_list.sort()
+    classes = [tool_key for _, tool_key in tool_list]
+    return classes
+
+
+def check_classes(root_dir, classes, save=False):
+    if save:
         check_dir = root_dir + "_check"
         if os.path.exists(check_dir):
             shutil.rmtree(check_dir)
@@ -46,7 +60,7 @@ def get_classes(root_dir, classes, check=False):
             with open(json_path, "r") as f:
                 data = json.load(f)
 
-            if check:
+            if save:
                 image_path = os.path.join(root_dir, data["imagePath"])
                 image = cv2.imread(image_path)
 
@@ -54,7 +68,8 @@ def get_classes(root_dir, classes, check=False):
                 category = shape["label"]
                 if category not in classes:
                     classes.append(category)
-                if check:
+                    print(f"Append a new category {len(classes)}:{category}")
+                if save:
                     category_dir = os.path.join(check_dir, category)
                     if not os.path.exists(category_dir):
                         os.makedirs(category_dir)
@@ -79,9 +94,8 @@ def json2txt(classes, root_dir, save_dir, ignores=None):
             with open(os.path.join(save_dir, os.path.splitext(filename)[0] + ".txt"), "w") as out_file:
                 for shape in data["shapes"]:
                     label = shape["label"]
-                    if label in ignores:
-                        if label in classes:
-                            classes.remove(label)
+                    if label in ignores and label in classes:
+                        classes.remove(label)
                         continue
                     xywh = labelme2yolo(shape["points"], imgsz)
                     out_file.write(f"{classes.index(label)} {' '.join(map(str, xywh))}\n")
@@ -96,6 +110,7 @@ if __name__ == "__main__":
         "/home/yy/workspace/datasets/railwaytools/annotation/20241207",
     ]
     save_dir = "/home/yy/workspace/datasets/railwaytools/train"
+    yaml_path = "data/railwaytools.yaml"
 
     ignores = [
         "yaoshi",
@@ -108,9 +123,9 @@ if __name__ == "__main__":
         "jiandao",
     ]
 
-    classes = []
+    classes = get_classes(yaml_path)
     for dir in root_dirs:
-        get_classes(dir, classes, check=False)
+        check_classes(dir, classes, check=False)
 
     for dir in root_dirs:
         json2txt(classes, dir, save_dir, ignores)

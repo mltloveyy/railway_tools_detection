@@ -1,0 +1,57 @@
+path: /workspace/detection/datasets/trainsets/20250531
+train: train
+val: val
+test: 
+names:
+  0: xiezuiqian
+  1: jianzuiqian
+  2: laohuqian
+  3: boxianqian
+  4: yingzuiqian
+  5: wanzuiqian
+  6: neiliujiaobanshou
+  7: neiliujiaobanshou_tao
+  8: huodongbanshou
+  9: gudingbanshou
+  10: liangyongbanshou
+  11: meihuabanshou
+  12: jilunbanshou
+  13: kaixiangbanshou
+  14: banshoulianjiegan
+  15: txingtaotong
+  16: sanjiaotaotong
+  17: zhijiaotaotong
+  18: shuangjieguntaotong
+  19: taotongzhuanjietou
+  20: yanzuitaotong
+  21: shizitaotong
+  22: luosidao
+  23: taotongluosidao
+  24: zhijiaotaotongluosidao
+  25: cuodao
+  26: meigongdao
+  27: zhediedao
+  28: jiandao
+  29: juanchi
+  30: shuipingchi
+  31: gangchi
+  32: saichi
+  33: gangshua
+  34: maoshua
+  35: juzi
+  36: niezi
+  37: yaoshi
+  38: tiechan
+  39: gongjubao
+  40: shoudiantong
+  41: jiaodai
+  42: chongzi
+  43: xinhaojiyaoshi
+  44: xiangjiaoshoutao
+  45: jiaoxie
+  46: muchui
+  47: tiechui
+  48: wanyongbiao
+  49: dianzuan
+  50: zhaooubiao
+  51: duijiangji
