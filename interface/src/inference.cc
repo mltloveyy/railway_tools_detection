@@ -9,20 +9,26 @@ namespace fs = std::filesystem;
 
 YoloInference::YoloInference(const std::string& model_path, int forward_type, int precision_mode, int num_threads)
     : m_forward_type(forward_type), m_precision_mode(precision_mode), m_num_threads(num_threads) {
+  MNN::ScheduleConfig scheduleConfig;
+  scheduleConfig.type = static_cast<MNNForwardType>(forward_type);
+  scheduleConfig.numThread = num_threads;
+
   MNN::BackendConfig backendConfig;
   backendConfig.precision = static_cast<MNN::BackendConfig::PrecisionMode>(precision_mode);
+  scheduleConfig.backendConfig = &backendConfig;
 
-  m_executor = std::shared_ptr<MNN::Express::Executor>(
-      MNN::Express::Executor::newExecutor(static_cast<MNNForwardType>(forward_type), backendConfig, num_threads));
+  m_rtmgr = std::shared_ptr<MNN::Express::Executor::RuntimeManager>(
+      MNN::Express::Executor::RuntimeManager::createRuntimeManager(scheduleConfig));
+  if (m_rtmgr == nullptr) {
+    MNN_ERROR("Empty RuntimeManger\n");
+    return;
+  }
+  m_rtmgr->setCache(".cachefile");
 
   m_net = std::shared_ptr<MNN::Express::Module>(MNN::Express::Module::load({}, {}, model_path.c_str(), m_rtmgr));
-  if (!m_net) {
-    throw std::runtime_error("Failed to load model: " + model_path);
-  }
-
-  auto rt = m_net->getInfo()->runTimeManager;
-  if (rt) {
-    rt->setCache(".cachefile");
+  if (m_net == nullptr) {
+    MNN_ERROR("Failed to load model: %s\n", model_path.c_str());
+    return;
   }
 }
 
@@ -41,7 +47,7 @@ std::map<std::string, std::vector<DetectionResult>> YoloInference::run_inference
   std::map<std::string, std::vector<DetectionResult>> results_map;
 
   for (const auto& entry : fs::directory_iterator(input_dir)) {
-    if (entry.is_regular_file()) {
+    if (fs::is_regular_file(entry)) {
       const std::string ext = entry.path().extension().string();
       if (ext == ".jpg" || ext == ".jpeg" || ext == ".png") {
         const std::string image_path = entry.path().string();
@@ -69,7 +75,7 @@ std::vector<DetectionResult> YoloInference::process_image(const MNN::Express::VA
   // Resize, Normalize, Convert Color
   image = MNN::CV::resize(image, MNN::CV::Size(TARGET_SIZE, TARGET_SIZE), 0, 0, MNN::CV::INTER_LINEAR, -1, {0., 0., 0.},
                           {1. / 255., 1. / 255., 1. / 255.});
-  image = MNN::CV::cvtColor(image, MNN::CV::COLOR_BGR2RGB);
+  // image = MNN::CV::cvtColor(image, MNN::CV::COLOR_BGR2RGB);
 
   // Prepare input tensor
   auto input = MNN::Express::_Unsqueeze(image, {0});
@@ -78,8 +84,7 @@ std::vector<DetectionResult> YoloInference::process_image(const MNN::Express::VA
   // Run inference
   auto outputs = m_net->onForward({input});
   auto output = MNN::Express::_Convert(outputs[0], MNN::Express::NCHW);
-  output = MNN::Express::_Squeeze(output);
-  output = MNN::Express::_Transpose(output, {1, 0});
+  output = MNN::Express::_Transpose(MNN::Express::_Squeeze(output), {1, 0});
 
   // Post-process based on C reference code structure
   auto x0 = MNN::Express::_Gather(output, MNN::Express::_Scalar<int>(0));
@@ -87,7 +92,7 @@ std::vector<DetectionResult> YoloInference::process_image(const MNN::Express::VA
   auto x1 = MNN::Express::_Gather(output, MNN::Express::_Scalar<int>(2));
   auto y1 = MNN::Express::_Gather(output, MNN::Express::_Scalar<int>(3));
   auto scores = MNN::Express::_Gather(output, MNN::Express::_Scalar<int>(4));
-  auto class_ids = MNN::Express::_Gather(output, MNN::Express::_Scalar<int>(5));
+  auto ids = MNN::Express::_Gather(output, MNN::Express::_Scalar<int>(5));
   auto boxes = MNN::Express::_Stack({x0, y0, x1, y1}, 1);
 
   // NMS
@@ -95,7 +100,7 @@ std::vector<DetectionResult> YoloInference::process_image(const MNN::Express::VA
 
   auto result_ptr = result_ids->readMap<int>();
   auto box_ptr = boxes->readMap<float>();
-  auto ids_ptr = class_ids->readMap<int>();
+  auto ids_ptr = ids->readMap<int>();
   auto score_ptr = scores->readMap<float>();
 
   std::vector<DetectionResult> results;
@@ -107,11 +112,6 @@ std::vector<DetectionResult> YoloInference::process_image(const MNN::Express::VA
     float y0 = box_ptr[idx * 4 + 1] * scale;
     float x1 = box_ptr[idx * 4 + 2] * scale;
     float y1 = box_ptr[idx * 4 + 3] * scale;
-
-    // Clamp back to original image size
-    x1 = std::min(static_cast<float>(iw), x1);
-    y1 = std::min(static_cast<float>(ih), y1);
-
     int class_idx = ids_ptr[idx];
     float conf = score_ptr[idx];
 

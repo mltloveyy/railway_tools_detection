@@ -15,7 +15,7 @@ import MNN
 def inference(net, image_path, imgsz):
     # Pre-process
     image = cv.imread(image_path)
-    image = image[..., ::-1]  # BGR to RGB
+    # image = image[..., ::-1]  # BGR to RGB
     ih, iw, _ = image.shape
     length = max((ih, iw))
     scale = length / imgsz
@@ -24,8 +24,8 @@ def inference(net, image_path, imgsz):
     infer_size = f"{int(ih/scale)}x{int(iw/scale)}"
 
     # Inference
-    input_var = image[None]
-    input_var = MNN.expr.convert(input_var, MNN.expr.NC4HW4)
+    input_var = np.expand_dims(image, 0)
+    input_var = MNN.expr.convert(input_var, MNN.expr.NCHW)
     t0 = time.time()
     output_var = net.forward(input_var)
     latency = (time.time() - t0) * 1000
@@ -49,9 +49,9 @@ def inference(net, image_path, imgsz):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--model", type=str, default="runs/detect/20260513/yolo26x_best.mnn", help="The .mnn model file for inference")
     parser.add_argument("--input", type=str, default="data/datasets/20250531/test", help="The data source for inference")
     parser.add_argument("--config", type=str, default="data/datasets/20250531/config.yaml", help="The configuration file")
-    parser.add_argument("--model", type=str, default="runs/detect/20260513/yolo26x_best.mnn", help="The .mnn model file for inference")
     parser.add_argument("--imgsz", type=int, default=640, help="Target image size for inference")
     parser.add_argument("--precision", type=str, default="normal", help="inference precision: normal, low, high, lowBF")
     parser.add_argument("--backend", type=str, default="CPU", help="inference backend: CPU, OPENCL, OPENGL, NN, VULKAN, METAL, TRT, CUDA, HIAI")
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
             patch = image[y0:y1, x0:x1]
             cv2.imwrite(os.path.join(save_subdir, f"{name}_{j}.jpg"), patch)
-            cv2.putText(img_show, f"{name}: {scores[j]:.3f}", (x1, max(y0 - 10, 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(img_show, f"{name}: {scores[j]:.3f}", (x0, max(y0 - 10, 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             cv2.rectangle(img_show, (x0, y0), (x1, y1), (0, 0, 255), 2)
             name_counts[name] = name_counts.get(name, 0) + 1
         cv2.imwrite(os.path.join(save_subdir, "0result.jpg"), img_show)

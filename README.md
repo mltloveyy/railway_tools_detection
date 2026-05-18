@@ -30,16 +30,16 @@ python 02_train.py --train --config data/config.yaml --model models/yolo26x.pt -
 python 02_train.py --export_mnn --model models/yolo26x.pt
 
 # pt模型推理
-python 03_inference.py --input data/test --model models/yolo26x.pt
+python 03_inference.py --model models/yolo26x.pt --input data/test
 
 # mnn模型推理
-python 04_mnn_inference.py --input data/test --config data/config.yaml --model models/yolo26x.mnn
+python 04_mnn_inference.py --model models/yolo26x.mnn --input data/test --config data/config.yaml
 
 ```
 
-## MNN推理
+## 推理
 
-### x86环境配置
+### x86
 
 #### MNN编译
 
@@ -49,7 +49,7 @@ python 04_mnn_inference.py --input data/test --config data/config.yaml --model m
 
 ```bash
 cd /project_root/MNN
-mkdir build && cd build && cmake -DCMAKE_CXX_STANDARD=17 -DMNN_IMGCODECS=ON -DMNN_BUILD_OPENCV=ON .. && make -j8
+mkdir build && cd build && cmake -DMNN_IMGCODECS=ON -DMNN_BUILD_OPENCV=ON .. && make -j8
 ```
 
 3. 复制MNN动态库到项目目录
@@ -78,4 +78,10 @@ cp -r MNN/tools/cv/include/* interface/include/MNN
 ```bash
 cd /project_root/interface
 mkdir build && cd build && cmake .. && make -j8
+```
+
+#### 运行
+
+```bash
+./MNN_YOLO models/yolo26x.mnn data/test data/config.yaml
 ```

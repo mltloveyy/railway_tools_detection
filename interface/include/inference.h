@@ -39,7 +39,6 @@ class YoloInference {
   std::map<std::string, std::vector<DetectionResult>> run_inference_on_directory(const std::string& input_dir);
 
  private:
-  std::shared_ptr<MNN::Express::Executor> m_executor;
   std::shared_ptr<MNN::Express::Module> m_net;
   std::shared_ptr<MNN::Express::Executor::RuntimeManager> m_rtmgr;
   int m_forward_type;
