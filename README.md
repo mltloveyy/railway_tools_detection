@@ -71,7 +71,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release && make -j8
 
 #### 运行Demo
 
-cmake添加`-DBUILD_DEMO=ON`选项重新构建编译
+cmake添加`-DBUILD_DEMO=ON`选项重新构建编译，得到可执行文件`MNN_YOLO`
 
 ```bash
 ./MNN_YOLO models/yolo26x.mnn data/test data/config.yaml
@@ -86,7 +86,7 @@ cmake添加`-DBUILD_DEMO=ON`选项重新构建编译
 1. 下载[NDK](https://developer.android.google.cn/ndk/downloads?hl=zh-cn), 解压到`/path/to/android-ndk`
 
 2. 在`.bashrc`或者`.bash_profile`中设置NDK环境变量，例如：`export ANDROID_NDK=/path/to/android-ndk`
-   
+
 3. 编译
 
 ```bash
@@ -163,4 +163,51 @@ make -j8
 
 #### 运行Demo
 
-1. cmake添加-DBUILD_DEMO=ON选项重新构建编译
+1. cmake添加`-DBUILD_DEMO=ON`选项重新构建编译，得到可执行文件`MNN_YOLO`
+
+2. 在Win系统上下载并安装[雷电模拟器](https://www.ldmnq.com/)
+
+3. 打开雷电模拟器，菜单->软件设置->其他，打开ROOT权限，ADB调试选择”开启本地连接“，保存并重启模拟器
+
+4. ADB路径：`${模拟器安装路径}\adb.exe`，默认路径：`C:\leidian\LDPlayer9\adb.exe`
+
+5. 推送文件到模拟器
+   
+   ```powershell
+   # 列出已连接设备
+   C:\leidian\LDPlayer14\adb.exe devices
+   # List of devices attached
+   # emulator-5554   device
+   
+   # 复制Demo文件到模拟器/data/local/tmp/目录下
+   C:\leidian\LDPlayer14\adb.exe push interface\build_android\MNN_YOLO /data/local/tmp/
+   Get-ChildItem "interface\build_android\*.so" | ForEach-Object { C:\leidian\LDPlayer14\adb.exe push $_.FullName /data/local/tmp/ }
+   C:\leidian\LDPlayer14\adb.exe push ${android-ndk}\toolchains\llvm\prebuilt\linux-x86_64\sysroot\usr\lib\aarch64-linux-android\libc++_shared.so /data/local/tmp/
+   
+   # 复制模型、配置文件和测试图片到模拟器/data/local/tmp/目录下
+   C:\leidian\LDPlayer14\adb.exe push runs\detect\20260513\yolo26x_best.mnn /data/local/tmp/
+   C:\leidian\LDPlayer14\adb.exe push data\config.yaml /data/local/tmp/
+   C:\leidian\LDPlayer14\adb.exe push data\test.jpg /data/local/tmp/
+   ```
+
+6. 运行Demo
+   
+   ```bash
+   # 进入模拟器
+   PS C:\leidian\LDPlayer14\adb.exe shell
+   
+   # 设置执行权限
+   cd /data/local/tmp
+   chmod +x MNN_YOLO
+   
+   # 设置动态库目录
+   export LD_LIBRARY_PATH=/data/local/tmp:$LD_LIBRARY_PATH
+   
+   # 运行
+   ./MNN_YOLO yolo26.mnn test.jpg config.yaml
+   
+   # 查看结果
+   PS C:\leidian\LDPlayer14\adb.exe pull /data/local/tmp/results_test.jpg .\data\
+   ```
+
+
