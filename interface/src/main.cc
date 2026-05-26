@@ -91,18 +91,22 @@ int main(int argc, char* argv[]) {
   Detector detector(model_path, ParseClassNames(config_path), forward_type, precision_mode);
 
   if (fs::is_directory(input_path)) {
+    std::vector<std::string> image_paths;
     for (const auto& entry : fs::directory_iterator(input_path)) {
       if (!fs::is_regular_file(entry)) continue;
       const auto ext = entry.path().extension().string();
       if (ext != ".jpg" && ext != ".jpeg" && ext != ".png") continue;
+      image_paths.push_back(entry.path().string());
+    }
 
-      auto image_path = entry.path().string();
+    int image_num = image_paths.size();
+    for (int i = 0; i < image_num; ++i) {
+      auto image_path = image_paths[i];
       auto start = std::chrono::high_resolution_clock::now();
       auto result = detector.run(image_path);
       auto end = std::chrono::high_resolution_clock::now();
       auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-      std::cout << "=== image: " << image_path << ", latency: " << std::to_string(latency) << "ms ===" << std::endl;
+      std::cout << "image " << i + 1 << "/" << image_num << " " << image_path << ", latency: " << latency << "ms" << std::endl;
       VisualizeAndExport(image_path, result, threshold);
     }
   } else {
@@ -111,7 +115,7 @@ int main(int argc, char* argv[]) {
     auto end = std::chrono::high_resolution_clock::now();
     auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    std::cout << "=== image: " << input_path << ", latency: " << std::to_string(latency) << "ms ===" << std::endl;
+    std::cout << "image " << input_path << ", latency: " << latency << "ms" << std::endl;
     VisualizeAndExport(input_path, result, threshold);
   }
 
